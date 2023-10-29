@@ -155,7 +155,7 @@ export const App = () => {
          {loadingLeaveDays && <Spinner />}
 
         {!loadingLeaveDays && (
-          <Accordion defaultIndex={[0]} allowMultiple>
+          <Accordion  defaultIndex={[0]} allowMultiple>
             {leaveDays?.map((leave) => (
               <LeaveDayItem
                 key={leave.dateFrom.toString() + leave.dateTo.toString()}

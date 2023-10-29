@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { LeaveRequest, LeaveDay, getBestLeaveDays } from "./holidayService";
+import { usePostHog } from "posthog-js/react";
 
 export const useBestLeaveDays = (request: LeaveRequest) => {
   const [leaveDays, setData] = useState<LeaveDay[] | null>(null);
   const [loadingLeaveDays, setLoading] = useState<boolean>(false);
   const [errorLeaveDays, setError] = useState<Error | null>(null);
+
+  const posthog = usePostHog();
 
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -17,6 +20,7 @@ export const useBestLeaveDays = (request: LeaveRequest) => {
       setLoading(true);
       getBestLeaveDays(request)
         .then((results) => {
+          posthog.capture("Leave Request", request);
           setData(results);
           setLoading(false);
         })

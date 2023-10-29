@@ -1,0 +1,29 @@
+export interface IpInfo {
+  ip: string;
+  network: string;
+  version: string;
+  city: string;
+  region: string;
+  regionCode: string;
+  country: string;
+  countryName: string;
+  countryCode: string;
+  countryCodeIso3: string;
+  countryCapital: string;
+  countryTld: string;
+  continentCode: string;
+  inEu: boolean;
+  postal: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  utcOffset: string;
+  countryCallingCode: string;
+  currency: string;
+  currencyName: string;
+  languages: string;
+  countryArea: number;
+  countryPopulation: number;
+  asn: string;
+  org: string;
+}

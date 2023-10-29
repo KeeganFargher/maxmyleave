@@ -6,10 +6,6 @@ import "@fontsource/lexend/700.css";
 
 import {
   Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   Box,
   ChakraProvider,
   Container,
@@ -20,90 +16,49 @@ import {
   HStack,
   Heading,
   Input,
-  ListItem,
   Select,
+  Spinner,
   Text,
-  UnorderedList,
-  extendTheme,
 } from "@chakra-ui/react";
 import useAvailableCountries from "./services/nager/useAvailableCountries";
 import useIpAddressInfo from "./services/ipLookup/useIpAddressInfo";
 import { useRef } from "react";
 import React from "react";
-import {
-  DayType,
-  LeaveDay,
-  getBestLeaveDays,
-} from "./services/holiday/holidayService";
+import { LeaveDay, getBestLeaveDays } from "./services/holiday/holidayService";
 import dayjs from "dayjs";
-import {
-  Calendar,
-  CalendarControls,
-  CalendarDays,
-  CalendarDefaultTheme,
-  CalendarMonth,
-  CalendarMonthName,
-  CalendarMonths,
-  CalendarNextButton,
-  CalendarPrevButton,
-  CalendarWeek,
-} from "@uselessdev/datepicker";
+import LeaveDayItem from "./components/LeaveDayItem";
+import theme from "./utils/theme";
+import { useBestLeaveDays } from "./services/holiday/useBestLeaveDays";
 var localizedFormat = require("dayjs/plugin/localizedFormat");
 dayjs.extend(localizedFormat);
 
-const theme = extendTheme({
-  ...CalendarDefaultTheme,
-  colors: {
-    primary: {
-      50: "#FAF5FF",
-      100: "#E9D8FD",
-      200: "#D6BCFA",
-      300: "#B794F4",
-      400: "#9F7AEA",
-      500: "#805AD5",
-      600: "#6B46C1",
-      700: "#553C9A",
-      800: "#44337A",
-      900: "#322659",
-    },
-  },
-  fonts: {
-    heading: `'Lexend', sans-serif`,
-    body: `'Raleway', sans-serif`,
-    button: "'Lexend', sans-serif",
-  },
-});
-
 const BASE_START_DATE = new Date();
 const BASE_END_DATE = new Date(BASE_START_DATE.getFullYear() + 1, 0, 31);
+const BASE_LEAVE_DAYS = 5;
 
 const formatDate = (item: Date) => item.toISOString().split("T")?.[0];
 
 export const App = () => {
-  const [leaveDays, setLeaveDays] = React.useState<LeaveDay[]>([]);
-
-  const [leaveDaysInput, setLeaveDaysInput] = React.useState(5);
+  const [leaveDaysInput, setLeaveDaysInput] = React.useState(BASE_LEAVE_DAYS);
+  const [startDateInput, setStartDateInput] = React.useState(BASE_START_DATE);
+  const [endDateInput, setEndDateInput] = React.useState(BASE_END_DATE);
+  const [countryInput, setCountryInput] = React.useState<string>("AD");
 
   const dropdownRef = useRef<HTMLSelectElement | null>(null);
 
   const { countries, loadingCountries } = useAvailableCountries();
   const { ipInfo, loadingIpInfo, errorIpInfo } = useIpAddressInfo();
+  const { leaveDays, loadingLeaveDays, errorLeaveDays } = useBestLeaveDays({
+    CountryCode: countryInput,
+    DateFrom: startDateInput,
+    DateTo: endDateInput,
+    NumberOfDays: leaveDaysInput,
+  });
 
   React.useEffect(() => {
     dropdownRef.current!.value = ipInfo?.countryCode ?? "";
+    setCountryInput(ipInfo?.countryCode ?? "AD");
   }, [ipInfo]);
-
-  React.useEffect(() => {
-    getBestLeaveDays({
-      CountryCode: "ZA",
-      DateFrom: BASE_START_DATE,
-      DateTo: BASE_END_DATE,
-      NumberOfDays: 7,
-    }).then((x) => {
-      setLeaveDays(x);
-      console.log(x);
-    });
-  }, []);
 
   return (
     <ChakraProvider theme={theme}>
@@ -126,7 +81,7 @@ export const App = () => {
               size="md"
               variant="filled"
               type="number"
-              defaultValue={5}
+              defaultValue={BASE_LEAVE_DAYS}
               min={2}
               onChange={(e) => setLeaveDaysInput(e.target.valueAsNumber)}
             />
@@ -147,6 +102,9 @@ export const App = () => {
                 variant="filled"
                 type="date"
                 defaultValue={formatDate(BASE_START_DATE)}
+                onChange={(e) =>
+                  setStartDateInput(e.target.valueAsDate as Date)
+                }
               />
             </FormControl>
 
@@ -159,6 +117,7 @@ export const App = () => {
                 variant="filled"
                 type="date"
                 defaultValue={formatDate(BASE_END_DATE)}
+                onChange={(e) => setEndDateInput(e.target.valueAsDate as Date)}
               />
             </FormControl>
           </HStack>
@@ -174,6 +133,7 @@ export const App = () => {
                 variant="filled"
                 size="md"
                 placeholder="Select country"
+                onChange={(e) => setCountryInput(e.target.value)}
               >
                 {countries?.map((country) => (
                   <option key={country.countryCode} value={country.countryCode}>
@@ -188,101 +148,22 @@ export const App = () => {
               )}
             </FormControl>
           </HStack>
-
-          {/* <Button
-            display="flex"
-            minW="80px"
-            mt={6}
-            ml="auto"
-            size="sm"
-            colorScheme="primary"
-          >
-            Go{" "}
-          </Button> */}
         </Box>
 
         <Divider borderColor="transparent" mt={8} mb={8}></Divider>
 
-        <Accordion defaultIndex={[0]} allowMultiple>
-          {leaveDays.map((leave, index) => {
-            const dateFrom = dayjs(leave.dateFrom).format("DD MMM YYYY");
-            const dateTo = dayjs(leave.dateTo).format("DD MMM YYYY");
+         {loadingLeaveDays && <Spinner />}
 
-            return (
-              <AccordionItem fontFamily="Lexend" key={index.toString()}>
-                <h2>
-                  <AccordionButton>
-                    <Box
-                      as="span"
-                      pt={3}
-                      pb={3}
-                      flex="1"
-                      display="flex"
-                      justifyContent="space-around"
-                      textAlign="left"
-                      style={{ fontFeatureSettings: "tnum" }}
-                    >
-                      <Box as="span" flex={1}>
-                        {dateFrom} → {dateTo}
-                      </Box>
-                      <Box
-                        as="span"
-                        flex={1}
-                        textAlign="center"
-                        fontWeight="bold"
-                      >
-                        {leave.daysOfLeave} Days
-                      </Box>
-                    </Box>
-                    <AccordionIcon />
-                  </AccordionButton>
-                </h2>
-                <AccordionPanel pb={4} display="flex">
-                  <Box>
-                    <Text mb={0}>
-                      {leave.daysOfWeekend} Weekends •{" "}
-                      {leave.daysOfPublicHolidays} Public Holidays
-                    </Text>
-                    <Text mb={3} fontSize="sm" color="gray.600">
-                      If you took leave from {dateFrom} till {dateTo}, you will
-                      receive {leave.daysOfLeave} days of leave instead of 5!
-                    </Text>
-                    <UnorderedList fontSize="sm" color="gray.600">
-                      {leave.timeline
-                        .filter((x) => x.dayType === DayType.PublicHoliday)
-                        .map((y) => (
-                          <ListItem key={y.publicHolidayName}>
-                            {y.publicHolidayName}
-                          </ListItem>
-                        ))}
-                    </UnorderedList>
-                  </Box>
-
-                  <Calendar
-                    value={{
-                      start: leave.dateFrom.toDate(),
-                      end: leave.dateTo.toDate(),
-                    }}
-                    onSelectDate={() => {}}
-                  >
-                    <CalendarControls>
-                      <CalendarPrevButton />
-                      <CalendarNextButton />
-                    </CalendarControls>
-
-                    <CalendarMonths>
-                      <CalendarMonth>
-                        <CalendarMonthName />
-                        <CalendarWeek />
-                        <CalendarDays />
-                      </CalendarMonth>
-                    </CalendarMonths>
-                  </Calendar>
-                </AccordionPanel>
-              </AccordionItem>
-            );
-          })}
-        </Accordion>
+        {!loadingLeaveDays && (
+          <Accordion defaultIndex={[0]} allowMultiple>
+            {leaveDays?.map((leave) => (
+              <LeaveDayItem
+                key={leave.dateFrom.toString() + leave.dateTo.toString()}
+                leave={leave}
+              />
+            ))}
+          </Accordion>
+        )} 
       </Container>
     </ChakraProvider>
   );

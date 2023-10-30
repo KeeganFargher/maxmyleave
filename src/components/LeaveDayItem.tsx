@@ -58,10 +58,13 @@ const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
                 <Box
                   as="span"
                   flex={1}
-                  fontWeight={isExpanded ? "bold" : "regular"}
-                  color={isExpanded ? "green.500" : "black"}
+                  // fontWeight={isExpanded ? "bold" : "regular"}
+                  // color={isExpanded ? "green.500" : "black"}
                 >
-                  {dateFrom} → {dateTo}
+                  {dateFrom} →{" "}
+                  <Box display={{ base: "block", md: "inline-block" }}>
+                    {dateTo}
+                  </Box>
                 </Box>
                 <Box as="span" flex={1} textAlign="center" fontWeight="bold">
                   {humanizeDuration(leave.daysOfLeave, "Day")}
@@ -76,8 +79,29 @@ const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
               display="flex"
               flexDirection={{ base: "column", md: "row" }}
             >
-              <Box flex={1} pt={3} mb={{ base: 3, md: 0 }}>
+              <Box flex={1} mb={{ base: 3, md: 0 }}>
                 <Box mb={6}>
+                  <Text mb={1.5} fontWeight="500">
+                    {humanizeDuration(
+                      leave.daysOfPublicHolidays,
+                      "Public Holiday"
+                    )}{" "}
+                    {leave.daysOfPublicHolidays >= 3 && "🔥"}
+                  </Text>
+                  {publicHolidays?.length === 0 && ":("}
+                  <UnorderedList fontSize="sm">
+                    {publicHolidays.map((y) => (
+                      <ListItem key={y.publicHolidayName} mb={1.5}>
+                        <Text fontStyle="italic" fontSize="xs" color="gray.600">
+                          {y.date.format("Do MMM")}
+                        </Text>
+                        <Text lineHeight="shorter">{y.publicHolidayName}</Text>
+                      </ListItem>
+                    ))}
+                  </UnorderedList>
+                </Box>
+
+                <Box>
                   <Text mb={1.5} fontWeight="500">
                     {humanizeDuration(leave.daysOfWeekend, "Weekend")}
                   </Text>
@@ -90,25 +114,6 @@ const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
                     </Text>
                   )}
                 </Box>
-
-                <Text mb={1.5} fontWeight="500">
-                  {humanizeDuration(
-                    leave.daysOfPublicHolidays,
-                    "Public Holiday"
-                  )}{" "}
-                  {leave.daysOfPublicHolidays >= 3 && "🔥"}
-                </Text>
-                {publicHolidays?.length === 0 && ":("}
-                <UnorderedList fontSize="sm">
-                  {publicHolidays.map((y) => (
-                    <ListItem key={y.publicHolidayName} mb={1.5}>
-                      <Text fontStyle="italic" fontSize="xs" color="gray.600">
-                        {y.date.format("Do MMM")}
-                      </Text>
-                      <Text lineHeight="shorter">{y.publicHolidayName}</Text>
-                    </ListItem>
-                  ))}
-                </UnorderedList>
               </Box>
 
               <Calendar

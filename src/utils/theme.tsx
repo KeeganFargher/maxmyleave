@@ -14,17 +14,28 @@ const theme = extendTheme(CalendarDefaultTheme, {
           boxShadow: "none",
           fontWeight: "light",
           paddingRight: 0,
+          p: 0,
         },
         months: {
           fontWeight: "light",
-          p: 4,
-          w: "100%",
+          padding: 0,
+
+          w: "auto",
           gridTemplateColumns: "1fr 1fr",
         },
       },
     },
-    CalendarMonth: {
-      parts: ["month", "name", "week", "weekday", "days"],
+    CalendarControl: {
+      parts: ["controls", "button"],
+      baseStyle: {
+        controls: {
+          fontWeight: "light",
+          padding: 0,
+        },
+        button: {
+          fontWeight: "light",
+        },
+      },
     },
     CalendarDay: {
       baseStyle: {
@@ -55,15 +66,20 @@ const theme = extendTheme(CalendarDefaultTheme, {
         selected: {
           bgColor: "green.500",
           color: "white",
+          _hover: {
+            bgColor: "green.500",
+          },
         },
 
         range: {
           bgColor: "gray.100",
           color: "black",
-
+          _hover: {
+            bgColor: "green.100",
+          },
           _disabled: {
             _hover: {
-              bgColor: "blue.300",
+              bgColor: "green.300",
             },
           },
         },
@@ -72,15 +88,23 @@ const theme = extendTheme(CalendarDefaultTheme, {
           color: "gray.300",
         },
         today: {
-          bgColor: "blue.100",
+          bgColor: "green.100",
           _hover: {
-            bgColor: "blue.200",
+            bgColor: "green.200",
           },
         },
       },
 
       defaultProps: {
         size: "sm",
+      },
+    },
+    CalendarMonth: {
+      parts: ["month", "name", "week", "weekday", "days"],
+      baseStyle: {
+        name: {
+          fontWeight: "regular",
+        },
       },
     },
   },

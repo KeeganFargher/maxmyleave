@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Max My Leave",
+  "name": "Get the most out of your days off! Tell us when and how long, and we'll find the best breaks using public holidays and weekends.",
   "icons": [
     {
       "src": "favicon.ico",

@@ -4,7 +4,7 @@ import { usePostHog } from "posthog-js/react";
 
 export const useBestLeaveDays = (request: LeaveRequest) => {
   const [leaveDays, setData] = useState<LeaveDay[] | null>(null);
-  const [loadingLeaveDays, setLoading] = useState<boolean>(false);
+  const [loadingLeaveDays, setLoading] = useState<boolean>(true);
   const [errorLeaveDays, setError] = useState<Error | null>(null);
 
   const posthog = usePostHog();

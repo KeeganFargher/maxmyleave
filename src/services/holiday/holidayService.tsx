@@ -78,6 +78,7 @@ export const getBestLeaveDays = async (request: LeaveRequest) => {
     request.NumberOfDays
   )
     .sort((a, b) => b.daysOfLeave - a.daysOfLeave)
+    .filter((x) => x.daysOfLeave >= request.NumberOfDays)
     .slice(0, 10);
 };
 
@@ -151,12 +152,17 @@ function isNonWorkingDay(
 }
 
 const aggregatePublicHolidays = async (countryCode: string, date: Date) => {
+  // Gets cached after first request so yolo
   const currentYear = await getPublicHolidays(countryCode, date.getFullYear());
   const nextYear = await getPublicHolidays(countryCode, date.getFullYear() + 1);
+  const twoYears = await getPublicHolidays(
+    countryCode,
+    date.getFullYear() + +2
+  );
 
   const holidays: { [key: string]: string } = {};
 
-  [...currentYear, ...nextYear].forEach((holiday) => {
+  [...currentYear, ...nextYear, ...twoYears].forEach((holiday) => {
     const dateString = dayjs(holiday.date).format("YYYY-MM-DD");
     holidays[dateString] = holiday.localName;
   });

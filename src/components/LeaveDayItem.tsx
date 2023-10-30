@@ -22,10 +22,21 @@ import {
 import { DayType, LeaveDay } from "../services/holiday/holidayService";
 import dayjs from "dayjs";
 import React from "react";
+require("humanizer.node");
+var advancedFormat = require("dayjs/plugin/advancedFormat");
+dayjs.extend(advancedFormat);
 
 const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
   const dateFrom = dayjs(leave.dateFrom).format("DD MMM YYYY");
   const dateTo = dayjs(leave.dateTo).format("DD MMM YYYY");
+
+  const publicHolidays = leave.timeline.filter(
+    (x) => x.dayType === DayType.PublicHoliday
+  );
+
+  function humanizeDuration(quantity: number, word: string): string {
+    return quantity <= 1 ? `1 ${word}` : `${quantity} ${word}s`;
+  }
 
   return (
     <AccordionItem fontFamily="Lexend">
@@ -44,11 +55,16 @@ const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
                 textAlign="left"
                 style={{ fontFeatureSettings: "tnum" }}
               >
-                <Box as="span" flex={1}>
+                <Box
+                  as="span"
+                  flex={1}
+                  fontWeight={isExpanded ? "bold" : "regular"}
+                  color={isExpanded ? "green.500" : "black"}
+                >
                   {dateFrom} → {dateTo}
                 </Box>
                 <Box as="span" flex={1} textAlign="center" fontWeight="bold">
-                  {leave.daysOfLeave} Days
+                  {humanizeDuration(leave.daysOfLeave, "Day")}
                 </Box>
               </Box>
               <AccordionIcon />
@@ -60,19 +76,38 @@ const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
               display="flex"
               flexDirection={{ base: "column", md: "row" }}
             >
-              <Box mb={{ base: 3, md: 0 }}>
-                <Text mb={3}>
-                  {leave.daysOfWeekend} Weekends • {leave.daysOfPublicHolidays}{" "}
-                  Public Holidays
+              <Box flex={1} pt={3} mb={{ base: 3, md: 0 }}>
+                <Box mb={6}>
+                  <Text mb={1.5} fontWeight="500">
+                    {humanizeDuration(leave.daysOfWeekend, "Weekend")}
+                  </Text>
+
+                  {leave.daysOfWeekend === 0 && ":("}
+                  {leave.daysOfWeekend > 1 && (
+                    <Text fontSize="sm">
+                      {leave.daysOfWeekend} Saturdays and {leave.daysOfWeekend}{" "}
+                      Sundays
+                    </Text>
+                  )}
+                </Box>
+
+                <Text mb={1.5} fontWeight="500">
+                  {humanizeDuration(
+                    leave.daysOfPublicHolidays,
+                    "Public Holiday"
+                  )}{" "}
+                  {leave.daysOfPublicHolidays >= 3 && "🔥"}
                 </Text>
-                <UnorderedList fontSize="sm" color="gray.600">
-                  {leave.timeline
-                    .filter((x) => x.dayType === DayType.PublicHoliday)
-                    .map((y) => (
-                      <ListItem key={y.publicHolidayName}>
-                        {y.publicHolidayName}
-                      </ListItem>
-                    ))}
+                {publicHolidays?.length === 0 && ":("}
+                <UnorderedList fontSize="sm">
+                  {publicHolidays.map((y) => (
+                    <ListItem key={y.publicHolidayName} mb={1.5}>
+                      <Text fontStyle="italic" fontSize="xs" color="gray.600">
+                        {y.date.format("Do MMM")}
+                      </Text>
+                      <Text lineHeight="shorter">{y.publicHolidayName}</Text>
+                    </ListItem>
+                  ))}
                 </UnorderedList>
               </Box>
 

@@ -12,6 +12,11 @@
   resolved "https://registry.yarnpkg.com/@adobe/css-tools/-/css-tools-4.3.1.tgz#abfccb8ca78075a2b6187345c26243c1a0842f28"
   integrity sha512-/62yikz7NLScCGAAST5SHdnjaDJQBDq0M2muyRTpf2VQhw6StBg2ALiu73zSJQ4fMVLA+0uBhBHAle7Wg+2kSg==
 
+"@alduino/humanizer@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@alduino/humanizer/-/humanizer-1.1.0.tgz#326675906da4b9242f348ba25e86e180d0c4412c"
+  integrity sha512-giCotZG35zJctq4hQFYrTTNCLOO0U1nldwZmLR7tbzF2EzTLiIGw2orNkY5WrQD6UPyPjN4GQsKEuy+O0EzjFQ==
+
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"
@@ -6325,6 +6330,11 @@ human-signals@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-2.1.0.tgz#dc91fcba42e4d06e4abaed33b3e7a3c02f514ea0"
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
+
+humanizer.node@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/humanizer.node/-/humanizer.node-1.0.4.tgz#3e7f3faa2db301f76f528c3205643b073881d08b"
+  integrity sha512-8ago59s6ZwJtYB4f90mAZ72Q7z/hE3bAJUd0eCI8YxqCO/AAuo9ReQUCmEPnu5Q0NG25Wj7VQEl9Wfbu2zQ+nA==
 
 iconv-lite@0.4.24:
   version "0.4.24"

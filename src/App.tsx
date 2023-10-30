@@ -1,4 +1,5 @@
 import "@fontsource/raleway/500.css";
+import "@fontsource/lexend/300.css";
 import "@fontsource/lexend/400.css";
 import "@fontsource/lexend/500.css";
 import "@fontsource/lexend/600.css";
@@ -58,7 +59,7 @@ export const App = () => {
   React.useEffect(() => {
     dropdownRef.current!.value = ipInfo?.countryCode ?? "";
     setCountryInput(ipInfo?.countryCode ?? "AD");
-  }, [ipInfo]);
+  }, [ipInfo?.countryCode]);
 
   return (
     <ChakraProvider theme={theme}>
@@ -128,7 +129,6 @@ export const App = () => {
                 Country
               </FormLabel>
               <Select
-                isDisabled={loadingCountries}
                 ref={dropdownRef}
                 variant="filled"
                 size="md"
@@ -152,10 +152,12 @@ export const App = () => {
 
         <Divider borderColor="transparent" mt={8} mb={8}></Divider>
 
-         {loadingLeaveDays && <Spinner />}
+        {loadingLeaveDays && (
+          <Spinner color="green" size="lg" display="flex" ml="auto" mr="auto" />
+        )}
 
         {!loadingLeaveDays && (
-          <Accordion  defaultIndex={[0]} allowMultiple>
+          <Accordion defaultIndex={[0]} allowMultiple>
             {leaveDays?.map((leave) => (
               <LeaveDayItem
                 key={leave.dateFrom.toString() + leave.dateTo.toString()}
@@ -163,7 +165,7 @@ export const App = () => {
               />
             ))}
           </Accordion>
-        )} 
+        )}
       </Container>
     </ChakraProvider>
   );

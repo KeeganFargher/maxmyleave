@@ -1,8 +1,89 @@
 import { extendTheme } from "@chakra-ui/react";
 import { CalendarDefaultTheme } from "@uselessdev/datepicker";
 
-const theme = extendTheme({
-  ...CalendarDefaultTheme,
+const theme = extendTheme(CalendarDefaultTheme, {
+  components: {
+    Calendar: {
+      parts: ["calendar", "months"],
+
+      baseStyle: {
+        calendar: {
+          rounded: "6px",
+          shadow: "none",
+          border: "none", // hmm
+          boxShadow: "none",
+          fontWeight: "light",
+          paddingRight: 0,
+        },
+        months: {
+          fontWeight: "light",
+          p: 4,
+          w: "100%",
+          gridTemplateColumns: "1fr 1fr",
+        },
+      },
+    },
+    CalendarMonth: {
+      parts: ["month", "name", "week", "weekday", "days"],
+    },
+    CalendarDay: {
+      baseStyle: {
+        fontWeight: "light",
+        rounded: "4px",
+        bgColor: "transparent",
+
+        _hover: {
+          bgColor: "gray.100",
+        },
+
+        _disabled: {
+          color: "gray.200",
+          _hover: {
+            cursor: "initial",
+            bgColor: "transparent",
+          },
+        },
+      },
+
+      sizes: {
+        sm: {
+          h: 8,
+        },
+      },
+
+      variants: {
+        selected: {
+          bgColor: "green.500",
+          color: "white",
+        },
+
+        range: {
+          bgColor: "gray.100",
+          color: "black",
+
+          _disabled: {
+            _hover: {
+              bgColor: "blue.300",
+            },
+          },
+        },
+
+        outside: {
+          color: "gray.300",
+        },
+        today: {
+          bgColor: "blue.100",
+          _hover: {
+            bgColor: "blue.200",
+          },
+        },
+      },
+
+      defaultProps: {
+        size: "sm",
+      },
+    },
+  },
   colors: {
     primary: {
       50: "#FAF5FF",

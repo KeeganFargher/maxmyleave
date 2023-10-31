@@ -22,7 +22,6 @@ import {
 import { DayType, LeaveDay } from "../services/holiday/holidayService";
 import dayjs from "dayjs";
 import React from "react";
-require("humanizer.node");
 var advancedFormat = require("dayjs/plugin/advancedFormat");
 dayjs.extend(advancedFormat);
 

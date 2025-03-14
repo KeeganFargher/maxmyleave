@@ -1,9 +1,9 @@
-import '@fontsource/raleway/500.css';
-import '@fontsource/lexend/300.css';
-import '@fontsource/lexend/400.css';
-import '@fontsource/lexend/500.css';
-import '@fontsource/lexend/600.css';
-import '@fontsource/lexend/700.css';
+import "@fontsource/raleway/500.css";
+import "@fontsource/lexend/300.css";
+import "@fontsource/lexend/400.css";
+import "@fontsource/lexend/500.css";
+import "@fontsource/lexend/600.css";
+import "@fontsource/lexend/700.css";
 
 import {
   Accordion,
@@ -38,31 +38,31 @@ const BASE_START_DATE = new Date();
 const BASE_END_DATE = new Date(BASE_START_DATE.getFullYear() + 1, 0, 31);
 const BASE_LEAVE_DAYS = 5;
 
-const formatDate = (item: Date) => item.toISOString().split('T')?.[0];
+const formatDate = (item: Date) => item.toISOString().split("T")?.[0];
 
 export const App = () => {
-	const [leaveDaysInput, setLeaveDaysInput] = React.useState(BASE_LEAVE_DAYS);
-	const [startDateInput, setStartDateInput] = React.useState(BASE_START_DATE);
-	const [endDateInput, setEndDateInput] = React.useState(BASE_END_DATE);
-	const [countryInput, setCountryInput] = React.useState<string>('AD');
+  const [leaveDaysInput, setLeaveDaysInput] = React.useState(BASE_LEAVE_DAYS);
+  const [startDateInput, setStartDateInput] = React.useState(BASE_START_DATE);
+  const [endDateInput, setEndDateInput] = React.useState(BASE_END_DATE);
+  const [countryInput, setCountryInput] = React.useState<string>("AD");
 
-	const dropdownRef = useRef<HTMLSelectElement | null>(null);
+  const dropdownRef = useRef<HTMLSelectElement | null>(null);
 
-	const { countries, loadingCountries } = useAvailableCountries();
-	const { ipInfo, loadingIpInfo, errorIpInfo } = useIpAddressInfo();
-	const { leaveDays, loadingLeaveDays, errorLeaveDays } = useBestLeaveDays({
-		CountryCode: countryInput,
-		DateFrom: startDateInput,
-		DateTo: endDateInput,
-		NumberOfDays: leaveDaysInput,
-	});
+  const { countries, loadingCountries } = useAvailableCountries();
+  const { ipInfo, loadingIpInfo, errorIpInfo } = useIpAddressInfo();
+  const { leaveDays, loadingLeaveDays, errorLeaveDays } = useBestLeaveDays({
+    CountryCode: countryInput,
+    DateFrom: startDateInput,
+    DateTo: endDateInput,
+    NumberOfDays: leaveDaysInput,
+  });
 
-	React.useEffect(() => {
-		if (!loadingCountries) {
-			dropdownRef.current!.value = ipInfo?.countryCode ?? '';
-			setCountryInput(ipInfo?.countryCode ?? 'AD');
-		}
-	}, [ipInfo?.countryCode, loadingCountries]);
+  React.useEffect(() => {
+    if (!loadingCountries) {
+      dropdownRef.current!.value = ipInfo?.countryCode ?? "";
+      setCountryInput(ipInfo?.countryCode ?? "AD");
+    }
+  }, [ipInfo?.countryCode, loadingCountries]);
 
   return (
     <ChakraProvider theme={theme}>
@@ -77,97 +77,88 @@ export const App = () => {
           weekends.
         </Text>
 
-				<Box mt={6}>
-					<FormControl width={{ base: '100%', md: '50%' }}>
-						<FormLabel fontSize='sm' mb={1}>
-							Leave Days
-						</FormLabel>
-						<Input
-							size='md'
-							variant='filled'
-							type='number'
-							defaultValue={BASE_LEAVE_DAYS}
-							min={2}
-							onChange={(e) => setLeaveDaysInput(e.target.valueAsNumber)}
-						/>
-					</FormControl>
+        <Box mt={6}>
+          <FormControl width={{ base: "100%", md: "50%" }}>
+            <FormLabel fontSize="sm" mb={1}>
+              Leave Days
+            </FormLabel>
+            <Input
+              size="md"
+              variant="filled"
+              type="number"
+              defaultValue={BASE_LEAVE_DAYS}
+              min={2}
+              onChange={(e) => setLeaveDaysInput(e.target.valueAsNumber)}
+            />
+          </FormControl>
 
-					<HStack
-						// direction={{ base: "column", md: "row" }} not sure???
-						spacing={3}
-						mt={3}
-						display='flex'>
-						<FormControl>
-							<FormLabel fontSize='sm' mb={1}>
-								Start Date
-							</FormLabel>
-							<Input
-								size='md'
-								variant='filled'
-								type='date'
-								defaultValue={formatDate(BASE_START_DATE)}
-								onChange={(e) =>
-									setStartDateInput(e.target.valueAsDate as Date)
-								}
-							/>
-						</FormControl>
+          <HStack
+            // direction={{ base: "column", md: "row" }} not sure???
+            spacing={3}
+            mt={3}
+            display="flex"
+          >
+            <FormControl>
+              <FormLabel fontSize="sm" mb={1}>
+                Start Date
+              </FormLabel>
+              <Input
+                size="md"
+                variant="filled"
+                type="date"
+                defaultValue={formatDate(BASE_START_DATE)}
+                onChange={(e) =>
+                  setStartDateInput(e.target.valueAsDate as Date)
+                }
+              />
+            </FormControl>
 
-						<FormControl>
-							<FormLabel fontSize='sm' mb={1}>
-								End Date
-							</FormLabel>
-							<Input
-								size='md'
-								variant='filled'
-								type='date'
-								defaultValue={formatDate(BASE_END_DATE)}
-								onChange={(e) =>
-									setEndDateInput(e.target.valueAsDate as Date)
-								}
-							/>
-						</FormControl>
-					</HStack>
+            <FormControl>
+              <FormLabel fontSize="sm" mb={1}>
+                End Date
+              </FormLabel>
+              <Input
+                size="md"
+                variant="filled"
+                type="date"
+                defaultValue={formatDate(BASE_END_DATE)}
+                onChange={(e) => setEndDateInput(e.target.valueAsDate as Date)}
+              />
+            </FormControl>
+          </HStack>
 
-					<HStack mt={3}>
-						<FormControl isDisabled={loadingCountries}>
-							<FormLabel fontSize='sm' mb={1}>
-								Country
-							</FormLabel>
-							<Select
-								ref={dropdownRef}
-								variant='filled'
-								size='md'
-								placeholder='Select country'
-								onChange={(e) => setCountryInput(e.target.value)}>
-								{countries?.map((country) => (
-									<option
-										key={country.countryCode}
-										value={country.countryCode}>
-										{country.name}
-									</option>
-								))}
-							</Select>
-							{errorIpInfo && (
-								<FormHelperText>
-									There was an error fetching the country you live
-									in.
-								</FormHelperText>
-							)}
-						</FormControl>
-					</HStack>
-				</Box>
+          <HStack mt={3}>
+            <FormControl isDisabled={loadingCountries}>
+              <FormLabel fontSize="sm" mb={1}>
+                Country
+              </FormLabel>
+              <Select
+                ref={dropdownRef}
+                variant="filled"
+                size="md"
+                placeholder="Select country"
+                onChange={(e) => setCountryInput(e.target.value)}
+              >
+                {countries?.map((country) => (
+                  <option key={country.countryCode} value={country.countryCode}>
+                    {country.name}
+                  </option>
+                ))}
+              </Select>
+              {errorIpInfo && (
+                <FormHelperText>
+                  There was an error fetching the country you live in.
+                </FormHelperText>
+              )}
+            </FormControl>
+          </HStack>
+        </Box>
 
-				<Divider borderColor='transparent' mt={8} mb={8}></Divider>
+        <Divider borderColor="transparent" mt={8} mb={8}></Divider>
 
-				{loadingLeaveDays && (
-					<Spinner
-						color='green'
-						size='lg'
-						display='flex'
-						ml='auto'
-						mr='auto'
-					/>
-				)}
+        {loadingLeaveDays && (
+          <Spinner color="green" size="lg" display="flex" ml="auto" mr="auto" />
+        )}
 
         {!loadingLeaveDays && (
           <Accordion defaultIndex={[0]} allowMultiple>

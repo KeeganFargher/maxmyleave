@@ -1,5 +1,4 @@
 import dayjs, { Dayjs } from "dayjs";
-import { PublicHoliday } from "../nager/models/PublicHoliday";
 import { getPublicHolidays } from "../nager/nagerService";
 
 export interface LeaveRequest {
@@ -20,15 +19,15 @@ export class LeaveDay {
   id: string;
   dateFrom: Dayjs;
   dateTo: Dayjs;
-  daysOfLeavePercentageIncrease: number;
   timeline: LeaveTimelineItem[];
+  publicHolidayHash: string;
 
   constructor(dateFrom: Dayjs, dateTo: Dayjs, timeline: LeaveTimelineItem[]) {
     this.id = this.generateGUID();
     this.timeline = timeline;
-    this.daysOfLeavePercentageIncrease = 0;
     this.dateFrom = dateFrom;
     this.dateTo = dateTo;
+    this.publicHolidayHash = this.generatePublicHolidayHash();
   }
 
   get daysOfLeave(): number {
@@ -48,6 +47,15 @@ export class LeaveDay {
 
   get daysOfLeaveFriendly(): string {
     return `DAYS ${this.daysOfLeave}`.toUpperCase();
+  }
+
+  private generatePublicHolidayHash(): string {
+    const publicHolidays = this.timeline
+      .filter((item) => item.publicHolidayName)
+      .map((item) => item.publicHolidayName)
+      .sort();
+
+    return publicHolidays.join("|");
   }
 
   private generateGUID(): string {
@@ -70,16 +78,25 @@ export const getBestLeaveDays = async (request: LeaveRequest) => {
     request.DateFrom
   );
 
-  console.log(request);
-
-  return calculateBestLeaveDays(
+  const bestLeaveDays = calculateBestLeaveDays(
     { startDate: dayjs(request.DateFrom), endDate: dayjs(request.DateTo) },
     holidays,
     request.NumberOfDays
   )
     .sort((a, b) => b.daysOfLeave - a.daysOfLeave)
-    .filter((x) => x.daysOfLeave >= request.NumberOfDays)
-    .slice(0, 10);
+    .filter((x) => x.daysOfLeave >= request.NumberOfDays);
+
+  const uniqueLeaveDays = bestLeaveDays.reduce<LeaveDay[]>((acc, element) => {
+    const hasConflict = acc.some(
+      (x) => x.publicHolidayHash === element.publicHolidayHash
+    );
+    if (!hasConflict) {
+      acc.push(element);
+    }
+    return acc;
+  }, []);
+
+  return uniqueLeaveDays.slice(0, 10);
 };
 
 function calculateBestLeaveDays(
@@ -143,11 +160,10 @@ function isNonWorkingDay(
   date: Dayjs,
   publicHolidays: { [key: string]: string }
 ): boolean {
-  // @ts-ignore
   return (
     date.day() === 6 ||
     date.day() === 0 ||
-    publicHolidays[date.format("YYYY-MM-DD")]
+    !!publicHolidays[date.format("YYYY-MM-DD")]
   );
 }
 
@@ -155,12 +171,9 @@ const aggregatePublicHolidays = async (countryCode: string, date: Date) => {
   // Gets cached after first request so yolo
   const currentYear = await getPublicHolidays(countryCode, date.getFullYear());
   const nextYear = await getPublicHolidays(countryCode, date.getFullYear() + 1);
-  const twoYears = await getPublicHolidays(
-    countryCode,
-    date.getFullYear() + +2
-  );
+  const twoYears = await getPublicHolidays(countryCode, date.getFullYear() + 2);
 
-  const holidays: { [key: string]: string } = {};
+  const holidays: Record<string, string> = {};
 
   [...currentYear, ...nextYear, ...twoYears].forEach((holiday) => {
     const dateString = dayjs(holiday.date).format("YYYY-MM-DD");

@@ -3,10 +3,10 @@ import {
   AccordionButton,
   AccordionIcon,
   AccordionPanel,
-  UnorderedList,
-  ListItem,
-  Text,
   Box,
+  Circle,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
 import {
   Calendar,
@@ -19,12 +19,28 @@ import {
   CalendarWeek,
   CalendarDays,
 } from "@uselessdev/datepicker";
-import { DayType, LeaveDay } from "../services/holiday/holidayService";
+import {
+  DayType,
+  LeaveDay,
+  LeaveTimelineItem,
+} from "../services/holiday/holidayService";
 import dayjs from "dayjs";
-import React from "react";
+import React, { useMemo } from "react";
 import { CustomCalendarDay } from "./CustomCalendarDay";
+import { useCalendarDay } from "@uselessdev/datepicker";
 var advancedFormat = require("dayjs/plugin/advancedFormat");
 dayjs.extend(advancedFormat);
+
+// Holiday colors mapping
+const HOLIDAY_COLORS = [
+  "pink.400",
+  "blue.400",
+  "purple.400",
+  "teal.400",
+  "orange.400",
+  "cyan.400",
+  "green.400",
+];
 
 const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
   const dateFrom = dayjs(leave.dateFrom).format("DD MMM YYYY");
@@ -34,9 +50,44 @@ const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
     (x) => x.dayType === DayType.PublicHoliday
   );
 
+  // Create a mapping of public holidays with assigned colors
+  const holidayColorMap = useMemo(() => {
+    const map = new Map<string, { color: string; name: string }>();
+
+    publicHolidays.forEach((holiday, index) => {
+      const colorIndex = index % HOLIDAY_COLORS.length;
+      const dateString = holiday.date.format("YYYY-MM-DD");
+      map.set(dateString, {
+        color: HOLIDAY_COLORS[colorIndex],
+        name: holiday.publicHolidayName || "",
+      });
+    });
+
+    return map;
+  }, [publicHolidays]);
+
   function humanizeDuration(quantity: number, word: string): string {
     return quantity <= 1 ? `1 ${word}` : `${quantity} ${word}s`;
   }
+
+  // Create a custom calendar day component
+  const CustomHolidayCalendarDay = () => {
+    const { day } = useCalendarDay();
+    const dateString = dayjs(day).format("YYYY-MM-DD");
+    const holiday = holidayColorMap.get(dateString);
+
+    if (holiday) {
+      return (
+        <CustomCalendarDay
+          isPublicHoliday={true}
+          holidayName={holiday.name}
+          holidayColor={holiday.color}
+        />
+      );
+    }
+
+    return <CustomCalendarDay />;
+  };
 
   return (
     <AccordionItem fontFamily="Lexend">
@@ -94,16 +145,35 @@ const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
                     {leave.daysOfPublicHolidays >= 3 && "🔥"}
                   </Text>
                   {publicHolidays?.length === 0 && ":("}
-                  <UnorderedList fontSize="sm">
-                    {publicHolidays.map((y) => (
-                      <ListItem key={y.publicHolidayName} mb={1.5}>
-                        <Text fontStyle="italic" fontSize="xs" color="gray.600">
-                          {y.date.format("Do MMM")}
-                        </Text>
-                        <Text lineHeight="shorter">{y.publicHolidayName}</Text>
-                      </ListItem>
-                    ))}
-                  </UnorderedList>
+                  <VStack spacing={2} align="stretch" pl={1} mt={2}>
+                    {publicHolidays.map((y, index) => {
+                      const dateString = y.date.format("YYYY-MM-DD");
+                      const holidayInfo = holidayColorMap.get(dateString);
+                      const color = holidayInfo?.color || HOLIDAY_COLORS[0];
+
+                      return (
+                        <Box
+                          key={y.publicHolidayName}
+                          display="flex"
+                          alignItems="center"
+                        >
+                          <Circle size="8px" bgColor={color} mr={2} />
+                          <Box>
+                            <Text
+                              fontStyle="italic"
+                              fontSize="xs"
+                              color="gray.600"
+                            >
+                              {y.date.format("Do MMM")}
+                            </Text>
+                            <Text lineHeight="shorter">
+                              {y.publicHolidayName}
+                            </Text>
+                          </Box>
+                        </Box>
+                      );
+                    })}
+                  </VStack>
                 </Box>
 
                 <Box>
@@ -143,7 +213,7 @@ const LeaveDayItem: React.FC<{ leave: LeaveDay }> = ({ leave }) => {
                       <CalendarMonthName />
                       <CalendarWeek />
                       <CalendarDays>
-                        <CustomCalendarDay />
+                        <CustomHolidayCalendarDay />
                       </CalendarDays>
                     </CalendarMonth>
                   </CalendarMonths>
